@@ -24,13 +24,13 @@
 
 using namespace std;
 
-#define	PEEKSIZE	8
+#define    PEEKSIZE    8
 
 class instruction1 {
 public:
-	unsigned char bytes[16];
-	int size;
-	string opr, opnd;
+    unsigned char bytes[16];
+    int size;
+    string opr, opnd;
 };
 
 static csh cshandle = 0;
@@ -40,8 +40,8 @@ static pair<unsigned long long, unsigned long long> program_section;
 
 
 void errquit(const char *msg) {
-	perror(msg);
-	exit(-1);
+    perror(msg);
+    exit(-1);
 }
 
 unsigned long long get_break_address(string command){
@@ -63,26 +63,26 @@ unsigned long long get_break_address(string command){
 
 void
 print_instruction(long long addr, instruction1 *in) {
-	int i;
-	char bytes[128] = "";
-	if(in == NULL) {
-		fprintf(stderr, "0x%llx:\t<cannot disassemble>\n", addr);
-	} else {
-		for(i = 0; i < in->size; i++) {
-			snprintf(&bytes[i*3], 4, "%2.2x ", in->bytes[i]);
-		} 
+    int i;
+    char bytes[128] = "";
+    if(in == NULL) {
+        fprintf(stderr, "0x%llx:\t<cannot disassemble>\n", addr);
+    } else {
+        for(i = 0; i < in->size; i++) {
+            snprintf(&bytes[i*3], 4, "%2.2x ", in->bytes[i]);
+        } 
         // printf("byte: %s\n", bytes);
-		fprintf(stderr, "\t0x%llx: %-32s\t%-10s%s\n", addr, bytes, in->opr.c_str(), in->opnd.c_str());
-	}
+        fprintf(stderr, "\t0x%llx: %-32s\t%-10s%s\n", addr, bytes, in->opr.c_str(), in->opnd.c_str());
+    }
 }
 
 void
 disassemble(pid_t proc, unsigned long long rip) {
-	int count;
-	char buf[10000] = { 0 };
-	unsigned long long ptr = rip;
-	cs_insn *insn;
-	map<long long, instruction1>::iterator mi; // from memory addr to instruction
+    int count;
+    char buf[10000] = { 0 };
+    unsigned long long ptr = rip;
+    cs_insn *insn;
+    map<long long, instruction1>::iterator mi; // from memory addr to instruction
     vector<unsigned long long>::iterator vi;
     int dist_to_end = 0;
     int print_instruction_num = 5;
@@ -104,41 +104,41 @@ disassemble(pid_t proc, unsigned long long rip) {
         return;
     }
 
-	// if((mi = instructions.find(rip)) != instructions.end()) {
-	// 	print_instruction(rip, &mi->second);
-	// 	return;
-	// }
+    // if((mi = instructions.find(rip)) != instructions.end()) {
+    //     print_instruction(rip, &mi->second);
+    //     return;
+    // }
 
-	for(ptr = rip; ptr < program_section.second; ptr += PEEKSIZE) {
-		long long peek;
-		errno = 0;
-		peek = ptrace(PTRACE_PEEKTEXT, proc, ptr, NULL);
-		if(errno != 0) break;
-		memcpy(&buf[ptr-rip], &peek, PEEKSIZE);
+    for(ptr = rip; ptr < program_section.second; ptr += PEEKSIZE) {
+        long long peek;
+        errno = 0;
+        peek = ptrace(PTRACE_PEEKTEXT, proc, ptr, NULL);
+        if(errno != 0) break;
+        memcpy(&buf[ptr-rip], &peek, PEEKSIZE);
 
         // printf("0x%llx\n", ptr);
-	}
+    }
 
-	if(ptr == rip)  {
-		printf("** the address is out of the range of the text section.\n");
-		// print_instruction(rip, NULL);
-		return;
-	}
+    if(ptr == rip)  {
+        printf("** the address is out of the range of the text section.\n");
+        // print_instruction(rip, NULL);
+        return;
+    }
 
-	if((count = cs_disasm(cshandle, (uint8_t*) buf, rip-ptr, rip, 0, &insn)) > 0) {
-		int i;
-		for(i = 0; i < count; i++) {
-			instruction1 in;
-			in.size = insn[i].size;
-			in.opr  = insn[i].mnemonic;
-			in.opnd = insn[i].op_str;
-			memcpy(in.bytes, insn[i].bytes, insn[i].size);
-			instructions[insn[i].address] = in;
+    if((count = cs_disasm(cshandle, (uint8_t*) buf, rip-ptr, rip, 0, &insn)) > 0) {
+        int i;
+        for(i = 0; i < count; i++) {
+            instruction1 in;
+            in.size = insn[i].size;
+            in.opr  = insn[i].mnemonic;
+            in.opnd = insn[i].op_str;
+            memcpy(in.bytes, insn[i].bytes, insn[i].size);
+            instructions[insn[i].address] = in;
 
             instructions_addess.push_back(insn[i].address);
-		}
-		cs_free(insn, count);
-	}
+        }
+        cs_free(insn, count);
+    }
 
     vi = find(instructions_addess.begin(), instructions_addess.end(), rip);
     dist_to_end = distance(vi, instructions_addess.end());
@@ -155,20 +155,20 @@ disassemble(pid_t proc, unsigned long long rip) {
         }
     }
 
-	return;
+    return;
 }
 
 void dump_code(long addr, long code) {
-	fprintf(stderr, "## %lx: code = %02x %02x %02x %02x %02x %02x %02x %02x\n",
-		addr,
-		((unsigned char *) (&code))[0],
-		((unsigned char *) (&code))[1],
-		((unsigned char *) (&code))[2],
-		((unsigned char *) (&code))[3],
-		((unsigned char *) (&code))[4],
-		((unsigned char *) (&code))[5],
-		((unsigned char *) (&code))[6],
-		((unsigned char *) (&code))[7]);
+    fprintf(stderr, "## %lx: code = %02x %02x %02x %02x %02x %02x %02x %02x\n",
+        addr,
+        ((unsigned char *) (&code))[0],
+        ((unsigned char *) (&code))[1],
+        ((unsigned char *) (&code))[2],
+        ((unsigned char *) (&code))[3],
+        ((unsigned char *) (&code))[4],
+        ((unsigned char *) (&code))[5],
+        ((unsigned char *) (&code))[6],
+        ((unsigned char *) (&code))[7]);
 }
 
 int meet_break_point(unsigned long long rip, map<unsigned long long, unsigned long> break_points){
@@ -279,14 +279,14 @@ int main(int argc, char* argv[]){
         
         execvp(argv[1], argv+1);
 
-		// execlp("./sample1", "./sample1", NULL);
+        // execlp("./sample1", "./sample1", NULL);
         // printf("execvp");
     } else {
         int wait_status;
         // int counter = 0;
         vector<unsigned long long>::iterator bi;
-		map<range_t, map_entry_t> m;
-		map<range_t, map_entry_t>::iterator mi;
+        map<range_t, map_entry_t> m;
+        map<range_t, map_entry_t>::iterator mi;
 
         map<unsigned long long, unsigned long>break_points;
         map<unsigned long long, unsigned long>anchor_break_points;
@@ -297,14 +297,14 @@ int main(int argc, char* argv[]){
         if(waitpid(child, &wait_status, 0) < 0) printf("waitpid");
         ptrace(PTRACE_SETOPTIONS, child, 0, PTRACE_O_EXITKILL);
 
-		// if(load_maps(child, m) > 0) {
-		// 	for(mi = m.begin(); mi != m.end(); mi++) {
-		// 		fprintf(stderr, "## %lx-%lx %04o %s\n",
-		// 			mi->second.range.begin, mi->second.range.end,
-		// 			mi->second.perm, mi->second.name.c_str());
-		// 	}
-		// 	fprintf(stderr, "## %zu map entries loaded.\n", m.size());
-		// }
+        // if(load_maps(child, m) > 0) {
+        //     for(mi = m.begin(); mi != m.end(); mi++) {
+        //         fprintf(stderr, "## %lx-%lx %04o %s\n",
+        //             mi->second.range.begin, mi->second.range.end,
+        //             mi->second.perm, mi->second.name.c_str());
+        //     }
+        //     fprintf(stderr, "## %zu map entries loaded.\n", m.size());
+        // }
 
         struct user_regs_struct regs;
         struct user_regs_struct anchor_regs;
@@ -327,19 +327,19 @@ int main(int argc, char* argv[]){
 
 
             if(ptrace(PTRACE_GETREGS, child, 0, &regs) == 0) {
-				//fprintf(stderr, "0x%llx\n", regs.rip);
-				range_t r = { regs.rip, regs.rip };
-				mi = m.find(r);
-				if(mi == m.end()) {
-					m.clear();
+                //fprintf(stderr, "0x%llx\n", regs.rip);
+                range_t r = { regs.rip, regs.rip };
+                mi = m.find(r);
+                if(mi == m.end()) {
+                    m.clear();
                     // printf("load map\n");
-					load_maps(child, m, map_range);
-					// fprintf(stderr, "## %zu map entries re-loaded.\n", m.size());
-					mi = m.find(r);
-				}
-				disassemble(child, regs.rip);
-			}else{
-				cs_close(&cshandle);
+                    load_maps(child, m, map_range);
+                    // fprintf(stderr, "## %zu map entries re-loaded.\n", m.size());
+                    mi = m.find(r);
+                }
+                disassemble(child, regs.rip);
+            }else{
+                cs_close(&cshandle);
             }
         }
 
@@ -464,11 +464,11 @@ int main(int argc, char* argv[]){
                 // dump_code(0x401004, code);
             }
 
-			// if(ptrace(PTRACE_SINGLESTEP, child, 0, 0) < 0) {
-			// 	perror("ptrace");
-			// 	cs_close(&cshandle);
-			// 	return -2;
-			// }
+            // if(ptrace(PTRACE_SINGLESTEP, child, 0, 0) < 0) {
+            //     perror("ptrace");
+            //     cs_close(&cshandle);
+            //     return -2;
+            // }
 
             // ptrace(PTRACE_CONT, child, 0, 0);
             // if(waitpid(child, &wait_status, 0) < 0) printf("waitpid");
@@ -476,7 +476,7 @@ int main(int argc, char* argv[]){
 
 
         cs_close(&cshandle);
-		printf("** the target program terminated.\n");
+        printf("** the target program terminated.\n");
     }
 
     return 0;
