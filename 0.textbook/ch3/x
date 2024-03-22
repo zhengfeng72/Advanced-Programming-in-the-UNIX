@@ -1,0 +1,50 @@
+----- test for buffer size 1
+
+real	1m33.412s
+user	0m11.425s
+sys	1m21.993s
+----- test for buffer size 4
+
+real	0m23.645s
+user	0m2.680s
+sys	0m20.965s
+----- test for buffer size 16
+
+real	0m5.845s
+user	0m0.628s
+sys	0m5.216s
+----- test for buffer size 64
+
+real	0m1.492s
+user	0m0.148s
+sys	0m1.344s
+----- test for buffer size 256
+
+real	0m0.384s
+user	0m0.044s
+sys	0m0.340s
+----- test for buffer size 1024
+
+real	0m0.118s
+user	0m0.012s
+sys	0m0.108s
+----- test for buffer size 4096
+
+real	0m0.052s
+user	0m0.000s
+sys	0m0.052s
+----- test for buffer size 16384
+
+real	0m0.040s
+user	0m0.000s
+sys	0m0.040s
+----- test for buffer size 65536
+
+real	0m0.036s
+user	0m0.000s
+sys	0m0.036s
+----- test for buffer size 262144
+
+real	0m0.034s
+user	0m0.000s
+sys	0m0.032s

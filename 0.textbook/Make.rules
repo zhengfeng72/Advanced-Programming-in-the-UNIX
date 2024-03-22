@@ -1,0 +1,39 @@
+
+CC	= gcc
+CXX	= g++
+CFLAGS	= -I../include -Wall -D_GNU_SOURCE $(EXTRA)
+LDFLAGS	= -L../lib -lapue -pthread
+SYS	= $(shell uname -s)
+
+OBJ	= $(shell ls *.c | awk '{print substr($$0,1,length($$0)-2)".o"}')
+#BIN	= $(shell ls *.c | awk '{print substr($$0,1,length($$0)-2)}')
+BIN	= $(shell grep ^main *.c | awk -F: '/^.+\.c:/{print substr($$1,1,length($$1)-2)}')
+
+ifeq ($(SYS),FreeBSD)
+CFLAGS	+= -D__BSD_VISIBLE
+endif
+
+ifeq ($(SYS),Linux)
+CFLAGS	+= -DLINUX
+endif
+
+IGNORE	= @echo "*** $@: ignored"
+COMPILE	= $(CC) -c $(CFLAGS) $<
+BUILD	= $(CC) -o $@ $? $(LDFLAGS)
+
+all: rules-all
+
+rules-all: $(OBJ) $(BIN)
+
+.c.o:
+	$(COMPILE)
+
+fig%: fig%.o
+	$(BUILD)
+
+cleanobj:
+	rm -f *.o
+
+clean: cleanobj
+	rm -f $(BIN)
+

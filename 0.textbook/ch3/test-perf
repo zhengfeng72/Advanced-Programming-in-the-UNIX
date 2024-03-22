@@ -1,0 +1,9 @@
+#!/bin/sh
+
+DATASET="1 4 16 64 256 1024 4096 16384 65536 262144"
+
+for x in $DATASET; do
+	echo ----- test for buffer size $x
+	time ./fig3.4-mycat $x < ./dat.$x.bin > /dev/null
+done
+
